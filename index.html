@@ -42,22 +42,31 @@
     transform-origin:center;
     z-index:-2;
   }
-  /* Capa oscura sobre el fondo */
+  /* Capa en degradado: más oscuro arriba, más claro abajo */
   body::after{
     content:"";
     position:fixed;
     inset:0;
-    background:linear-gradient(180deg,rgba(8,14,42,.55),rgba(8,14,42,.78));
+    background:linear-gradient(180deg,rgba(6,11,38,.82) 0%,rgba(8,14,42,.55) 55%,rgba(10,16,46,.35) 100%);
     z-index:-1;
   }
 
   .logo{
     position:absolute;
-    top:26px;
+    top:24px;
     left:38px;
-    height:40px;
     z-index:5;
-    filter:brightness(0) invert(1); /* logo en blanco para contraste sobre fondo oscuro */
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .logo img{height:40px;width:auto;}              /* X en su color tomate original */
+  .logo .brand{
+    font-weight:800;
+    font-size:30px;
+    letter-spacing:1px;
+    color:#fff;                                    /* letras en blanco */
+    line-height:1;
   }
 
   .wrap{
@@ -173,7 +182,9 @@
 
   /* ---------- RESPONSIVE / MOBILE ---------- */
   @media (max-width:860px){
-    .logo{left:50%;transform:translateX(-50%);filter:brightness(0) invert(1);height:34px;top:22px;}
+    .logo{left:50%;transform:translateX(-50%);top:20px;}
+    .logo img{height:34px;}
+    .logo .brand{font-size:26px;}
     .wrap{
       flex-direction:column;
       justify-content:flex-start;
@@ -194,7 +205,10 @@
 </head>
 <body>
 
-  <img class="logo" src="imagenes/primax_logo.webp" alt="PRIMAX">
+  <div class="logo">
+    <img src="imagenes/primax_x.webp" alt="">
+    <span class="brand">PRIMAX</span>
+  </div>
 
   <div class="wrap">
 
