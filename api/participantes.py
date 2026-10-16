@@ -47,14 +47,19 @@ class handler(BaseHTTPRequestHandler):
             error_body = error.read().decode("utf-8", errors="replace")
             print(f"Supabase respondió {error.code}: {error_body}", flush=True)
             self.send_json(
-                {"error": "Supabase rechazó el registro. Revisa la tabla y RLS."},
+                {
+                    "error": (
+                        f"Supabase rechazó el registro (HTTP {error.code}). "
+                        "Revisa las variables, la tabla y RLS."
+                    )
+                },
                 502,
             )
             return
         except URLError as error:
             print(f"No se pudo conectar con Supabase: {error}", flush=True)
             self.send_json(
-                {"error": "No fue posible conectar con Supabase."},
+                {"error": f"No fue posible conectar con Supabase: {error.reason}"},
                 502,
             )
             return
@@ -64,8 +69,16 @@ class handler(BaseHTTPRequestHandler):
     def save_participant(self, participant):
         supabase_url = os.environ.get("SUPABASE_URL", "").rstrip("/")
         supabase_key = os.environ.get("SUPABASE_ANON_KEY", "")
-        if not supabase_url or not supabase_key:
-            raise URLError("Faltan las variables de Supabase.")
+        missing = [
+            name
+            for name, value in (
+                ("SUPABASE_URL", supabase_url),
+                ("SUPABASE_ANON_KEY", supabase_key),
+            )
+            if not value
+        ]
+        if missing:
+            raise URLError(f"Faltan variables en Vercel: {', '.join(missing)}.")
 
         request = Request(
             f"{supabase_url}/rest/v1/participantes",

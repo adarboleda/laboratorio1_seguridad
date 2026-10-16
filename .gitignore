@@ -1,3 +1,6 @@
 participantes.db
 participantes.db-*
 __pycache__/
+.env
+.env.*
+!.env.example
