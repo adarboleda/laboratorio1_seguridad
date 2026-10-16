@@ -5,15 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>La Súper Tanqueada del Año</title>
 <!--
-  ================================================================
-  LABORATORIO DE SEGURIDAD - RECREACIÓN CON FINES EDUCATIVOS
-  ----------------------------------------------------------------
-  Este es un CLON de demostración para un laboratorio académico de
-  concientización sobre phishing. El formulario NO envía datos a
-  ningún servidor: al enviar solo muestra un mensaje en pantalla.
-  No debe desplegarse en internet ni usarse para recolectar datos
-  reales de personas.
-  ================================================================
+================================================================
+LABORATORIO DE SEGURIDAD - RECREACIÓN CON FINES EDUCATIVOS
+----------------------------------------------------------------
+Esta página es un CLON de demostración para un laboratorio
+académico de concientización sobre phishing. No debe usarse para
+recolectar datos reales sin autorización.
+================================================================
 -->
 <style>
   :root{
@@ -179,6 +177,17 @@
     gap:10px;
   }
   .ok-msg svg{flex:0 0 20px;width:20px;height:20px;}
+  .error-msg{
+    display:none;
+    margin-top:16px;
+    background:rgba(255,220,220,.95);
+    color:#9b1c1c;
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:14px;
+    font-weight:600;
+  }
+  .btn-send:disabled{opacity:.7;cursor:wait;}
 
   /* ---------- RESPONSIVE / MOBILE ---------- */
   @media (max-width:860px){
@@ -255,17 +264,49 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 6L9 17l-5-5"/>
         </svg>
-        <span>¡Operación exitosa! (demo de laboratorio — no se envió ningún dato)</span>
+        <span id="okMsgText">¡Operación exitosa! Los datos fueron guardados.</span>
       </div>
+      <div class="error-msg" id="errorMsg" role="alert"></div>
     </form>
 
   </div>
 
 <script>
-  // Demo de laboratorio: NO se transmite ningún dato a ningún servidor.
-  document.getElementById('formPromo').addEventListener('submit', function(e){
+  const formPromo = document.getElementById('formPromo');
+  const buttonSend = formPromo.querySelector('.btn-send');
+  const okMsg = document.getElementById('okMsg');
+  const errorMsg = document.getElementById('errorMsg');
+
+  formPromo.addEventListener('submit', async function(e){
     e.preventDefault();
-    document.getElementById('okMsg').style.display = 'flex';
+    if (!formPromo.reportValidity()) return;
+
+    buttonSend.disabled = true;
+    buttonSend.textContent = 'Guardando...';
+    okMsg.style.display = 'none';
+    errorMsg.style.display = 'none';
+
+    try {
+      const response = await fetch('/api/participantes', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(Object.fromEntries(new FormData(formPromo)))
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'No se pudieron guardar los datos.');
+      }
+
+      okMsg.style.display = 'flex';
+      formPromo.reset();
+    } catch (error) {
+      errorMsg.textContent = error.message;
+      errorMsg.style.display = 'block';
+    } finally {
+      buttonSend.disabled = false;
+      buttonSend.textContent = 'Enviar';
+    }
   });
 </script>
 </body>
