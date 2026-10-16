@@ -1,0 +1,387 @@
+\documentclass[12pt,a4paper]{article}
+
+% ---------- Paquetes ----------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage{times}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,arrows.meta,positioning,calc}
+\usepackage{hyperref}
+\usepackage{url}
+
+\onehalfspacing
+\setlength{\parindent}{1.27cm}
+\hypersetup{colorlinks=true, linkcolor=black, urlcolor=blue, citecolor=black}
+
+% ---------- Estilo de código ----------
+% Tildes y signos del español dentro de los bloques de código
+\lstset{literate=
+  {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+  {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+  {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {ü}{{\"u}}1
+  {¿}{{\textquestiondown}}1 {¡}{{\textexclamdown}}1
+}
+
+\lstdefinestyle{consola}{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{gray!10},
+  frame=single,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false
+}
+
+\lstdefinestyle{codigo}{
+  style=consola,
+  keywordstyle=\color{blue!60!black}\bfseries,
+  commentstyle=\color{green!40!black}\itshape,
+  stringstyle=\color{orange!70!black}
+}
+
+\lstset{style=consola}
+\renewcommand{\lstlistingname}{Código}
+
+% ---------- Figuras ----------
+% \figura{ruta}{descripcion}: inserta la imagen si existe en el proyecto;
+% si no, muestra un recuadro que indica qué captura colocar.
+\newcommand{\marcador}[1]{%
+  \fbox{\parbox[c][6cm][c]{0.85\textwidth}{\centering\small\textit{Insertar captura: #1}}}%
+}
+\newcommand{\figura}[2]{%
+  \IfFileExists{#1}{\includegraphics[width=0.85\textwidth,height=0.4\textheight,keepaspectratio]{#1}}{\marcador{#2}}%
+}
+
+\captionsetup{labelfont=bf, labelsep=period, justification=centering}
+\addto\captionsspanish{\renewcommand{\figurename}{Figura}}
+
+% ---------- Diagrama ----------
+\tikzset{
+  actor/.style={rectangle, rounded corners, draw, fill=gray!12, text width=2.8cm, align=center, minimum height=1cm, font=\small},
+  comp/.style={rectangle, draw, fill=blue!8, text width=3cm, align=center, minimum height=1cm, font=\small},
+  data/.style={cylinder, shape border rotate=90, aspect=0.3, draw, fill=green!10, text width=2.2cm, align=center, minimum height=1.1cm, font=\small},
+  flecha/.style={-{Stealth[length=2mm]}, thick}
+}
+
+\begin{document}
+
+% ---------- Portada ----------
+\begin{titlepage}
+    \centering
+    \vfill
+    \IfFileExists{logo-espe.png}{\includegraphics[width=0.7\textwidth]{logo-espe.png}\par}{\vspace{1cm}}
+    \vspace{0.8cm}
+    {\Large \bfseries Universidad de las Fuerzas Armadas ESPE \par}
+    \vspace{0.25cm}
+    {\large Sede Sangolquí \par}
+    \vspace{0.6cm}
+    {\large \textbf{Carrera:} Ingeniería de Software \par}
+    \vspace{0.25cm}
+    {\large \textbf{NRC:} [completar] \par}
+    \vspace{0.6cm}
+    {\Large \bfseries Laboratorio 1 -- Unidad 1: Ataque de \textit{phishing} \par}
+    \vspace{0.3cm}
+    {\large Suplantación de marca y captura de datos mediante un sitio clonado y un enlace acortado \par}
+    \vspace{0.6cm}
+    {\large \textbf{Integrantes:} \par}
+    \vspace{0.2cm}
+    {\large
+    Marcelo Acuña \par
+    Abner Arboleda \par
+    Zaith Manangón \par
+    Andrés Cedeño \par
+    }
+    \vspace{0.5cm}
+    {\large \textbf{Materia:} Ingeniería de Seguridad del Software \par}
+    \vspace{0.8cm}
+    {\large \textbf{Docente:} Milton Arguello \par}
+    \vspace{0.4cm}
+    {\large Sangolquí, 16 de octubre de 2026 \par}
+    \vfill
+\end{titlepage}
+\tableofcontents
+\newpage
+
+% ---------- Aviso ----------
+\section*{Aviso de uso académico}
+\addcontentsline{toc}{section}{Aviso de uso académico}
+
+El presente trabajo documenta un ejercicio controlado de concientización sobre \textit{phishing}, realizado con fines exclusivamente educativos dentro de la materia de Seguridad. El sitio recreado y el enlace acortado se construyeron en un entorno de laboratorio, no se difundieron a víctimas reales y no se recolectaron datos de personas sin su conocimiento. El objetivo es comprender cómo opera este ataque para poder \textbf{detectarlo y prevenirlo}. Reproducir estas técnicas contra terceros sin autorización constituye un delito.
+
+% ---------- 1. Tema ----------
+\section{Tema}
+
+Ataque de \textit{phishing}: suplantación de la identidad de una marca de confianza (Primax) para inducir a la víctima a entregar sus datos personales a través de un sitio web clonado, difundido mediante un correo electrónico y un enlace acortado.
+
+% ---------- 2. Objetivo ----------
+\section{Objetivo}
+
+\subsection{Objetivo general}
+
+Simular, en un entorno de laboratorio controlado, un ataque de \textit{phishing} por suplantación de marca que combine un sitio web clonado y un enlace acortado, con el fin de comprender el funcionamiento técnico y el componente humano del ataque y derivar medidas de detección y prevención.
+
+\subsection{Objetivos específicos}
+
+\begin{itemize}[leftmargin=1.5cm]
+  \item Identificar las herramientas utilizadas (Vercel, Supabase y Bitly) y describir su funcionalidad dentro del ataque.
+  \item Analizar la amenaza, la vulnerabilidad y el riesgo asociados, así como las técnicas de engaño y el comportamiento humano que explota el \textit{phishing}.
+  \item Construir y publicar un sitio web que imite una promoción de Primax y capturar los datos ingresados en una base de datos.
+  \item Difundir el enlace del sitio mediante un acortador de URL que simule el vector de entrega.
+  \item Evidenciar el redireccionamiento del enlace desde un teléfono y la simulación del ingreso de datos por parte de la víctima.
+  \item Proponer conclusiones y recomendaciones orientadas a la detección y prevención del ataque.
+\end{itemize}
+
+% ---------- 3. Antecedentes ----------
+\section{Antecedentes}
+
+El \textit{phishing} es una técnica de ingeniería social en la que un atacante se hace pasar por una entidad legítima para engañar a la víctima y obtener información sensible o inducirla a realizar una acción perjudicial. Según el \textit{Anti-Phishing Working Group} (APWG), continúa siendo uno de los vectores de ataque más frecuentes, debido a que explota al eslabón más débil de la cadena de seguridad: el ser humano \citep{apwg2024, nistphishing}.
+
+\subsection{Herramientas utilizadas y su funcionalidad}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Herramientas empleadas en el laboratorio y su función en el ataque.}
+\label{tab:herramientas}
+\begin{tabular}{|p{3.2cm}|p{11.3cm}|}
+\hline
+\textbf{Herramienta} & \textbf{Funcionalidad dentro del ataque} \\ \hline
+Vercel & Plataforma de alojamiento que publica el sitio web clonado en una URL con HTTPS y ejecuta la función \textit{serverless} que recibe los datos del formulario. Da al sitio apariencia profesional y disponibilidad inmediata. \\ \hline
+Supabase & Base de datos como servicio (PostgreSQL). Almacena los datos capturados en la tabla \texttt{participantes}. La función del servidor inserta los registros mediante su API REST. \\ \hline
+Bitly & Acortador de URL. Transforma la dirección real del sitio en un enlace corto y de apariencia inofensiva, ocultando el dominio de destino y permitiendo medir los clics. Es el vector de entrega del enlace hacia la víctima. \\ \hline
+HTML, CSS y JavaScript & Tecnologías con las que se recreó la interfaz del sitio legítimo (clon visual) y el formulario de captura. \\ \hline
+Python & Lenguaje de la función \textit{serverless} (\texttt{api/participantes.py}) que valida y reenvía los datos a Supabase. \\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{Amenaza}
+
+La amenaza es un atacante que suplanta a una marca reconocida (Primax) para engañar a usuarios y robar sus datos personales. Al tratarse de una empresa de consumo masivo, la marca genera confianza y amplía el número de posibles víctimas.
+
+\subsection{Vulnerabilidad}
+
+La vulnerabilidad principal no es técnica sino humana: la tendencia de las personas a confiar en marcas conocidas, a actuar con rapidez ante un supuesto premio y a no verificar la dirección real de un enlace, especialmente en el teléfono. A ello se suma que los acortadores ocultan el destino real de la URL, dificultando que el usuario detecte el engaño antes de hacer clic.
+
+\subsection{Riesgo}
+
+El riesgo es la exposición y el robo de datos personales (nombres, apellidos, número de teléfono y correo electrónico). Con esa información, el atacante puede realizar suplantación de identidad, fraude, envío de \textit{spam}, llamadas fraudulentas o ataques dirigidos (\textit{spear phishing}) más convincentes en una segunda etapa.
+
+\subsection{Técnicas empleadas}
+
+\begin{itemize}[leftmargin=1.5cm]
+  \item \textbf{Suplantación de marca (\textit{brand impersonation}):} uso del logotipo, colores y lenguaje de Primax para aparentar legitimidad.
+  \item \textbf{Pretexto de premio y urgencia:} un supuesto sorteo de ``un año de gasolina gratis'' que motiva a actuar rápido sin reflexionar.
+  \item \textbf{Clonado de sitio web:} recreación visual de una página promocional con un formulario de captura de datos.
+  \item \textbf{Enlace acortado:} uso de Bitly para disimular el dominio real de destino y entregar el enlace a la víctima.
+  \item \textbf{Homógrafos / homóglifos:} uso de caracteres de apariencia similar en la dirección (por ejemplo, una letra cirílica que imita una latina) para reforzar el parecido con un enlace legítimo.
+\end{itemize}
+
+\subsection{Conducta o comportamiento humano relacionado}
+
+El ataque explota principios de influencia psicológica descritos por \citet{cialdini2001}: la \textit{autoridad} y la \textit{confianza} en una marca conocida, la \textit{escasez} y la \textit{urgencia} de un premio por tiempo limitado y la \textit{codicia} ante un beneficio gratuito. Estos sesgos reducen el pensamiento crítico y llevan a la víctima a entregar sus datos sin verificar la autenticidad del mensaje ni del enlace.
+
+% ---------- 4. Desarrollo ----------
+\section{Desarrollo}
+
+El ataque simulado sigue el flujo de la Figura~\ref{fig:arquitectura}: la víctima recibe el correo, abre el enlace acortado, llega al sitio clonado alojado en Vercel, ingresa sus datos y estos se almacenan en Supabase.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.1cm and 1.4cm]
+  \node[actor] (vic) {Víctima};
+  \node[comp, right=of vic] (entrega) {Correo / \\ enlace Bitly};
+  \node[comp, right=of entrega] (sitio) {Sitio clonado \\ (Vercel)};
+  \node[comp, below=of sitio] (api) {Función \textit{serverless} \\ \texttt{api/participantes}};
+  \node[data, left=of api] (db) {Supabase \\ \texttt{participantes}};
+
+  \draw[flecha] (vic) -- node[above,font=\scriptsize]{recibe} (entrega);
+  \draw[flecha] (entrega) -- node[above,font=\scriptsize]{abre} (sitio);
+  \draw[flecha] (sitio) -- node[right,font=\scriptsize]{envía datos} (api);
+  \draw[flecha] (api) -- node[above,font=\scriptsize]{inserta} (db);
+\end{tikzpicture}
+\caption{Arquitectura del ataque de \textit{phishing} simulado.}
+\label{fig:arquitectura}
+\end{figure}
+
+\subsection{El correo (vector de entrega)}
+
+El mensaje imita una comunicación oficial de Primax. Felicita a la víctima por haber resultado ``ganadora'' de un sorteo y le pide confirmar sus datos de contacto (nombres, teléfono y correo) a través de un botón \textit{Llenar Formulario}, que enlaza al sitio clonado. El tono institucional, el logotipo y la nota de ``correo automático, no responda'' refuerzan la apariencia de legitimidad.
+
+\begin{figure}[H]
+    \centering
+    \figura{capturas/correo_phishing.png}{Correo de phishing que suplanta a Primax, con el pretexto del sorteo de un año de gasolina gratis y el botón ``Llenar Formulario''}
+    \caption{Correo utilizado como vector de entrega.}
+    \label{fig:correo}
+\end{figure}
+
+\subsection{Configuración del servidor y del sitio web}
+
+El sitio es una página estática (HTML, CSS y JavaScript) que recrea una promoción de Primax titulada ``La Súper Tanqueada del Año''. Contiene un formulario que solicita nombres, apellidos, teléfono y correo. Al enviarse, el formulario realiza una petición \texttt{POST} a la ruta \texttt{/api/participantes} mediante \texttt{fetch}.
+
+El proyecto se publicó en \textbf{Vercel}, que sirve la página estática y ejecuta la función \textit{serverless} \texttt{api/participantes.py}. Esta función valida los campos recibidos (campos obligatorios, longitudes máximas y formato de correo) y, si son correctos, los reenvía a Supabase a través de su API REST. Las credenciales de Supabase (\texttt{SUPABASE\_URL} y \texttt{SUPABASE\_ANON\_KEY}) se configuran como variables de entorno en Vercel y nunca se exponen en el navegador.
+
+El enlace de publicación del sitio es:
+\begin{center}
+\url{https://primaxsiempremas.vercel.app/}
+\end{center}
+
+En \textbf{Supabase} se creó la tabla \texttt{participantes} con una política de seguridad a nivel de fila (RLS) que únicamente permite insertar registros, sin exponer una ruta pública de lectura. El Código~\ref{lst:schema} muestra su definición.
+
+\begin{lstlisting}[style=codigo, language=SQL, caption={Definición de la tabla en Supabase (\texttt{supabase-schema.sql}).}, label={lst:schema}]
+create table public.participantes (
+  id bigint generated by default as identity primary key,
+  nombres text not null check (char_length(nombres) between 1 and 100),
+  apellidos text not null check (char_length(apellidos) between 1 and 100),
+  telefono text not null check (char_length(telefono) between 1 and 30),
+  correo text not null check (char_length(correo) between 3 and 254),
+  creado_en timestamptz not null default now()
+);
+
+alter table public.participantes enable row level security;
+
+create policy "Permitir registrar participantes"
+on public.participantes
+for insert
+to anon
+with check (true);
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \figura{capturas/sitio_escritorio.png}{Sitio clonado de Primax abierto en el navegador de escritorio, mostrando el diseño de la promoción y el formulario}
+    \caption{Sitio web clonado publicado en Vercel.}
+    \label{fig:sitio}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figura{capturas/vercel_variables.png}{Panel de Vercel con las variables de entorno SUPABASE\_URL y SUPABASE\_ANON\_KEY configuradas}
+    \caption{Configuración de variables de entorno en Vercel.}
+    \label{fig:vercel}
+\end{figure}
+
+\subsection{Uso del acortador de URL (Bitly)}
+
+La dirección del sitio se acortó con Bitly para ocultar el dominio real y dar al enlace una apariencia más confiable. El enlace acortado utilizado fue:
+\begin{center}
+\url{https://bit.ly/primaх}
+\end{center}
+Además de disimular el destino, el acortador permite al atacante registrar cuántas personas hicieron clic. En este enlace se aprecia también la técnica de \textbf{homóglifos}: el último carácter es una letra de apariencia idéntica a la latina, lo que dificulta distinguir el enlace de uno legítimo.
+
+\begin{figure}[H]
+    \centering
+    \figura{capturas/bitly.png}{Panel de Bitly mostrando la creación del enlace corto a partir de la URL de Vercel y las estadísticas de clics}
+    \caption{Acortamiento del enlace con Bitly.}
+    \label{fig:bitly}
+\end{figure}
+
+% ---------- 5. Resultados ----------
+\section{Resultados}
+
+\subsection{Captura del direccionamiento desde el teléfono o el clic}
+
+Al pulsar el enlace acortado desde un teléfono, el navegador redirige a la víctima al sitio clonado alojado en Vercel. La Figura~\ref{fig:redireccion} evidencia este redireccionamiento: el enlace corto conduce al sitio de la ``promoción'' sin que la URL real sea evidente para el usuario.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \figura{capturas/telefono_enlace.png}{Teléfono abriendo el enlace acortado de Bitly}\\[2pt]
+        {\small (a) Clic en el enlace desde el teléfono}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \figura{capturas/telefono_sitio.png}{Sitio clonado de Primax cargado en el navegador del teléfono tras el redireccionamiento}\\[2pt]
+        {\small (b) Sitio cargado en el móvil}
+    \end{minipage}
+    \caption{Redireccionamiento del enlace desde el teléfono.}
+    \label{fig:redireccion}
+\end{figure}
+
+\subsection{Simulación del ingreso de datos}
+
+Para simular el comportamiento de una víctima, se completó el formulario con datos de prueba y se envió. La función del servidor validó los campos y los almacenó en Supabase. La Figura~\ref{fig:ingreso} muestra el formulario diligenciado y el registro resultante en la tabla \texttt{participantes}.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \figura{capturas/formulario_lleno.png}{Formulario del sitio clonado completado con datos de prueba (nombres, apellidos, teléfono y correo)}\\[2pt]
+        {\small (a) Formulario diligenciado}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \figura{capturas/supabase_registros.png}{Tabla participantes en Supabase mostrando el registro capturado con sus campos y la fecha}\\[2pt]
+        {\small (b) Dato capturado en Supabase}
+    \end{minipage}
+    \caption{Simulación del ingreso y captura de datos.}
+    \label{fig:ingreso}
+\end{figure}
+
+El resultado confirma que el flujo completo del ataque funciona: entrega (correo / enlace acortado) $\rightarrow$ redireccionamiento al sitio clonado $\rightarrow$ captura de datos $\rightarrow$ almacenamiento en la base de datos.
+
+% ---------- 6. Conclusiones ----------
+\section{Conclusiones}
+
+\begin{enumerate}[leftmargin=1.5cm]
+  \item El ejercicio demostró que un ataque de \textit{phishing} convincente no requiere técnicas avanzadas de intrusión: con herramientas gratuitas y de uso legítimo (Vercel, Supabase y Bitly) se puede construir y publicar en poco tiempo un sitio que suplanta a una marca y captura datos reales.
+  \item La eficacia del ataque descansa en el factor humano. La suplantación de una marca de confianza, el pretexto de un premio y la urgencia reducen el pensamiento crítico de la víctima, que entrega sus datos sin verificar el remitente ni la dirección real del enlace.
+  \item El uso combinado de un enlace acortado y caracteres homóglifos oculta el dominio de destino y hace que el engaño sea especialmente difícil de detectar en dispositivos móviles, donde la URL no se inspecciona con facilidad.
+  \item Documentar el ataque de principio a fin permite comprender cada etapa del flujo y, sobre todo, identificar los puntos en los que una persona informada puede detenerlo: la verificación del remitente, la inspección del enlace y la desconfianza ante solicitudes de datos no esperadas.
+\end{enumerate}
+
+% ---------- 7. Recomendaciones ----------
+\section{Recomendaciones}
+
+\begin{enumerate}[leftmargin=1.5cm]
+  \item \textbf{Verificar el remitente y la URL:} desconfiar de correos no solicitados que anuncian premios y comprobar la dirección real del enlace antes de abrirlo; las empresas legítimas no piden datos personales por estos medios.
+  \item \textbf{Precaución con enlaces acortados:} previsualizar el destino de un enlace corto antes de abrirlo, ya que oculta la dirección real a la que redirige.
+  \item \textbf{Observar las señales de homóglifos:} prestar atención a caracteres extraños o sustituidos en las direcciones y a pequeñas diferencias en el dominio.
+  \item \textbf{No entregar datos personales en formularios no verificados} y acceder a las promociones únicamente desde los canales oficiales de la empresa escribiendo la dirección directamente.
+  \item \textbf{Capacitación y concientización:} realizar campañas periódicas de concientización y simulacros controlados de \textit{phishing} dentro de las organizaciones para entrenar al personal en la detección de estos ataques.
+  \item \textbf{Medidas técnicas de defensa:} habilitar filtros antispam, autenticación de correo (SPF, DKIM, DMARC), autenticación multifactor (MFA) y reportar los sitios fraudulentos para su bloqueo.
+\end{enumerate}
+
+% ---------- Anexos ----------
+\section*{Anexos}
+\addcontentsline{toc}{section}{Anexos}
+
+\subsection*{Anexo A: Recursos del laboratorio}
+
+\begin{itemize}[leftmargin=1.5cm]
+  \item Sitio publicado (entorno de laboratorio): \url{https://primaxsiempremas.vercel.app/}
+  \item Enlace acortado de entrega: \url{https://bit.ly/primaх}
+\end{itemize}
+
+% ---------- Bibliografía (APA 7) ----------
+\begin{thebibliography}{99}
+\setlength{\itemsep}{0.5em}
+
+\bibitem[APWG(2024)]{apwg2024}
+Anti-Phishing Working Group. (2024). \textit{Phishing Activity Trends Report}. APWG. \url{https://apwg.org/trendsreports/}
+
+\bibitem[Cialdini(2001)]{cialdini2001}
+Cialdini, R. B. (2001). \textit{Influence: Science and practice} (4.\textsuperscript{a} ed.). Allyn \& Bacon.
+
+\bibitem[NIST(s.f.)]{nistphishing}
+National Institute of Standards and Technology. (s.f.). \textit{Phishing}. NIST. \url{https://www.nist.gov/itl/smallbusinesscyber/guidance-topic/phishing}
+
+\bibitem[Supabase(s.f.)]{supabase}
+Supabase. (s.f.). \textit{Supabase documentation}. \url{https://supabase.com/docs}
+
+\bibitem[Vercel(s.f.)]{vercel}
+Vercel. (s.f.). \textit{Vercel documentation}. \url{https://vercel.com/docs}
+
+\end{thebibliography}
+
+\end{document}
