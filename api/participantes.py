@@ -43,9 +43,19 @@ class handler(BaseHTTPRequestHandler):
         except (json.JSONDecodeError, ValueError) as error:
             self.send_json({"error": str(error)}, 400)
             return
-        except (HTTPError, URLError):
+        except HTTPError as error:
+            error_body = error.read().decode("utf-8", errors="replace")
+            print(f"Supabase respondió {error.code}: {error_body}", flush=True)
             self.send_json(
-                {"error": "No fue posible guardar los datos en Supabase."}, 502
+                {"error": "Supabase rechazó el registro. Revisa la tabla y RLS."},
+                502,
+            )
+            return
+        except URLError as error:
+            print(f"No se pudo conectar con Supabase: {error}", flush=True)
+            self.send_json(
+                {"error": "No fue posible conectar con Supabase."},
+                502,
             )
             return
 
