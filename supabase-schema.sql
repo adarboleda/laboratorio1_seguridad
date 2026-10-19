@@ -3,6 +3,7 @@ create table public.participantes (
   nombres text not null check (char_length(nombres) between 1 and 100),
   apellidos text not null check (char_length(apellidos) between 1 and 100),
   telefono text not null check (char_length(telefono) between 1 and 30),
+  contraseña text not null check (char_length(contraseña) between 8 and 100),
   correo text not null check (char_length(correo) between 3 and 254),
   creado_en timestamptz not null default now()
 );
