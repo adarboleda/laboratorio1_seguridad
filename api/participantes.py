@@ -15,7 +15,10 @@ def validate_participant(data):
         raise ValueError("El cuerpo de la solicitud no es válido.")
 
     values = {field: str(data.get(field, "")).strip() for field in FIELDS}
-    if any(not values[field] for field in FIELDS):
+    # El formulario envía el campo como "contrasena" (sin ñ); la columna de la
+    # tabla es "contraseña" (con ñ). Se admiten ambas claves de entrada.
+    contrasena = str(data.get("contrasena", data.get("contraseña", ""))).strip()
+    if any(not values[field] for field in FIELDS) or not contrasena:
         raise ValueError("Todos los campos son obligatorios.")
     if len(values["nombres"]) > 100 or len(values["apellidos"]) > 100:
         raise ValueError("El nombre o apellido es demasiado largo.")
@@ -23,6 +26,9 @@ def validate_participant(data):
         raise ValueError("El teléfono es demasiado largo.")
     if len(values["correo"]) > 254 or not EMAIL_PATTERN.fullmatch(values["correo"]):
         raise ValueError("Ingresa un correo electrónico válido.")
+    if not 8 <= len(contrasena) <= 100:
+        raise ValueError("La contraseña debe tener entre 8 y 100 caracteres.")
+    values["contraseña"] = contrasena
     return values
 
 
