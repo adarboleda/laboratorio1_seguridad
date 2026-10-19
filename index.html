@@ -420,7 +420,7 @@ recolectar datos reales sin autorización.
         if (!formPromo.reportValidity()) return;
 
         buttonSend.disabled = true;
-        buttonSend.textContent = 'Guardando...';
+        buttonSend.textContent = 'Actualizando...';
         okMsg.style.display = 'none';
         errorMsg.style.display = 'none';
 
@@ -436,7 +436,7 @@ recolectar datos reales sin autorización.
 
           if (!response.ok) {
             throw new Error(
-              result.error || 'No se pudieron guardar los datos.',
+              result.error || 'No se pudieron actualizar los datos.',
             );
           }
 
@@ -447,7 +447,7 @@ recolectar datos reales sin autorización.
           errorMsg.style.display = 'block';
         } finally {
           buttonSend.disabled = false;
-          buttonSend.textContent = 'Enviar';
+          buttonSend.textContent = 'Actualizar';
         }
       });
     </script>
