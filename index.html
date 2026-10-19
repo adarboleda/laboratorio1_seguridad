@@ -1,13 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/jpeg" href="imagenes/favicon.jpg">
-<link rel="shortcut icon" type="image/jpeg" href="imagenes/favicon.jpg">
-<link rel="apple-touch-icon" href="imagenes/favicon.jpg">
-<title>La Súper Tanqueada del Año</title>
-<!--
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/jpeg" href="imagenes/favicon.jpg" />
+    <link rel="shortcut icon" type="image/jpeg" href="imagenes/favicon.jpg" />
+    <link rel="apple-touch-icon" href="imagenes/favicon.jpg" />
+    <title>La Súper Tanqueada del Año</title>
+    <!--
 ================================================================
 LABORATORIO DE SEGURIDAD - RECREACIÓN CON FINES EDUCATIVOS
 ----------------------------------------------------------------
@@ -16,301 +16,440 @@ académico de concientización sobre phishing. No debe usarse para
 recolectar datos reales sin autorización.
 ================================================================
 -->
-<style>
-  :root{
-    --primax-orange:#F15A22;
-    --primax-orange-2:#FF6A1A;
-    --primax-blue:#1B2A8C;
-    --primax-yellow:#FFD21E;
-    --card-radius:28px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  html,body{min-height:100%;}
-  body{
-    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
-    position:relative;
-    min-height:100vh;
-    overflow-x:hidden;
-    color:#fff;
-  }
-  /* Fondo: imagen en modo espejo, ampliada */
-  body::before{
-    content:"";
-    position:fixed;
-    inset:0;
-    background:url("imagenes/imagen_fondo.jpg") center/cover no-repeat;
-    transform:scaleX(-1) scale(1.18);
-    transform-origin:center;
-    z-index:-2;
-  }
-  /* Capa en degradado: más oscuro arriba, más claro abajo */
-  body::after{
-    content:"";
-    position:fixed;
-    inset:0;
-    background:linear-gradient(180deg,rgba(6,11,38,.82) 0%,rgba(8,14,42,.55) 55%,rgba(10,16,46,.35) 100%);
-    z-index:-1;
-  }
-
-  .logo{
-    position:absolute;
-    top:24px;
-    left:38px;
-    z-index:5;
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
-  .logo img{height:40px;width:auto;}              /* X en su color tomate original */
-  .logo .brand{
-    font-weight:800;
-    font-size:30px;
-    letter-spacing:1px;
-    color:#fff;                                    /* letras en blanco */
-    line-height:1;
-  }
-
-  .wrap{
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:30px;
-    padding:90px 48px 48px;
-    max-width:1320px;
-    margin:0 auto;
-  }
-
-  /* ---------- HERO ---------- */
-  .hero{
-    flex:1 1 55%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-  }
-  .hero img{
-    width:100%;
-    max-width:620px;
-    height:auto;
-    filter:drop-shadow(0 20px 40px rgba(0,0,0,.35));
-  }
-  .hero .mobile-title{display:none;}
-
-  /* ---------- FORM CARD ---------- */
-  .card{
-    flex:0 0 430px;
-    max-width:430px;
-    background:rgba(255,255,255,.14);
-    backdrop-filter:blur(18px);
-    -webkit-backdrop-filter:blur(18px);
-    border:1px solid rgba(255,255,255,.28);
-    border-radius:var(--card-radius);
-    padding:34px 30px 30px;
-    box-shadow:0 30px 60px rgba(0,0,0,.35);
-    position:relative;
-  }
-  .card .req{
-    font-size:12px;
-    color:rgba(255,255,255,.85);
-    text-align:right;
-    display:block;
-    margin-bottom:6px;
-    padding-right:46px;
-  }
-  .card .badge{
-    position:absolute;
-    top:22px;
-    right:26px;
-    width:38px;height:38px;
-    border-radius:50%;
-    background:#fff;
-    display:flex;align-items:center;justify-content:center;
-    box-shadow:0 4px 10px rgba(0,0,0,.2);
-  }
-  .card .badge svg{width:20px;height:20px;color:var(--primax-blue);}
-
-  .field{margin-bottom:16px;}
-  .field label{
-    display:block;
-    font-size:14px;
-    font-weight:600;
-    margin-bottom:7px;
-    color:#fff;
-  }
-  .field label span{color:var(--primax-yellow);}
-  .field input{
-    width:100%;
-    border:none;
-    border-radius:12px;
-    background:#fff;
-    padding:14px 16px;
-    font-size:15px;
-    color:#1a1a1a;
-    outline:none;
-  }
-  .field input::placeholder{color:#9aa0a6;}
-  .field input:focus{box-shadow:0 0 0 3px rgba(241,90,34,.45);}
-
-  .btn-send{
-    width:100%;
-    border:none;
-    border-radius:14px;
-    background:var(--primax-orange);
-    color:#fff;
-    font-size:17px;
-    font-weight:700;
-    padding:15px;
-    margin-top:8px;
-    cursor:pointer;
-    transition:background .15s,transform .05s;
-  }
-  .btn-send:hover{background:#d94e1b;}
-  .btn-send:active{transform:translateY(1px);}
-
-  .ok-msg{
-    display:none;
-    margin-top:16px;
-    background:rgba(255,255,255,.9);
-    color:#0a7a2f;
-    border-radius:12px;
-    padding:12px 14px;
-    font-size:14px;
-    font-weight:600;
-    align-items:center;
-    gap:10px;
-  }
-  .ok-msg svg{flex:0 0 20px;width:20px;height:20px;}
-  .error-msg{
-    display:none;
-    margin-top:16px;
-    background:rgba(255,220,220,.95);
-    color:#9b1c1c;
-    border-radius:12px;
-    padding:12px 14px;
-    font-size:14px;
-    font-weight:600;
-  }
-  .btn-send:disabled{opacity:.7;cursor:wait;}
-
-  /* ---------- RESPONSIVE / MOBILE ---------- */
-  @media (max-width:860px){
-    .logo{left:50%;transform:translateX(-50%);top:20px;}
-    .logo img{height:34px;}
-    .logo .brand{font-size:26px;}
-    .wrap{
-      flex-direction:column;
-      justify-content:flex-start;
-      padding:78px 20px 40px;
-      gap:18px;
-    }
-    .hero{flex:none;width:100%;}
-    .hero .desktop-title{display:none;}
-    .hero .mobile-title{display:block;max-width:420px;width:100%;}
-    .card{
-      flex:none;
-      width:100%;
-      max-width:460px;
-      padding:30px 22px 26px;
-    }
-  }
-</style>
-</head>
-<body>
-
-  <div class="logo">
-    <img src="imagenes/primax_x.webp" alt="">
-    <span class="brand">PRIMAX</span>
-  </div>
-
-  <div class="wrap">
-
-    <!-- HERO -->
-    <div class="hero">
-      <img class="desktop-title" src="imagenes/hero_promo.webp" alt="La Súper Tanqueada del Año - 12 Premios por Ganar">
-      <img class="mobile-title"  src="imagenes/hero_promo_mobile.webp" alt="La Súper Tanqueada del Año - Son 12 Premios">
-    </div>
-
-    <!-- FORMULARIO -->
-    <form class="card" id="formPromo" novalidate>
-      <div class="badge" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 2h6a1 1 0 0 1 1 1v1h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2V3a1 1 0 0 1 1-1z"/>
-          <path d="M9 4h6"/><path d="M9 12h6"/><path d="M9 16h4"/>
-        </svg>
-      </div>
-
-      <span class="req">Campos obligatorios*</span>
-
-      <div class="field">
-        <label for="nombres">Nombres completos<span>*</span></label>
-        <input type="text" id="nombres" name="nombres" placeholder="Ej. María Alejandra" autocomplete="off" required>
-      </div>
-
-      <div class="field">
-        <label for="apellidos">Apellidos completos<span>*</span></label>
-        <input type="text" id="apellidos" name="apellidos" placeholder="Ej. Navarrete Pérez" autocomplete="off" required>
-      </div>
-
-      <div class="field">
-        <label for="telefono">Número de teléfono de contacto<span>*</span></label>
-        <input type="tel" id="telefono" name="telefono" placeholder="09XXXXXXXX" autocomplete="off" required>
-      </div>
-
-      <div class="field">
-        <label for="correo">Correo electrónico<span>*</span></label>
-        <input type="email" id="correo" name="correo" placeholder="nombre@correo.com" autocomplete="off" required>
-      </div>
-
-      <button type="submit" class="btn-send">Enviar</button>
-
-      <div class="ok-msg" id="okMsg">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 6L9 17l-5-5"/>
-        </svg>
-        <span id="okMsgText">¡Gracias! Pronto nos contactaremos contigo.</span>
-      </div>
-      <div class="error-msg" id="errorMsg" role="alert"></div>
-    </form>
-
-  </div>
-
-<script>
-  const formPromo = document.getElementById('formPromo');
-  const buttonSend = formPromo.querySelector('.btn-send');
-  const okMsg = document.getElementById('okMsg');
-  const errorMsg = document.getElementById('errorMsg');
-
-  formPromo.addEventListener('submit', async function(e){
-    e.preventDefault();
-    if (!formPromo.reportValidity()) return;
-
-    buttonSend.disabled = true;
-    buttonSend.textContent = 'Guardando...';
-    okMsg.style.display = 'none';
-    errorMsg.style.display = 'none';
-
-    try {
-      const response = await fetch('/api/participantes', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(Object.fromEntries(new FormData(formPromo)))
-      });
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'No se pudieron guardar los datos.');
+    <style>
+      :root {
+        --primax-orange: #f15a22;
+        --primax-orange-2: #ff6a1a;
+        --primax-blue: #1b2a8c;
+        --primax-yellow: #ffd21e;
+        --card-radius: 28px;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        min-height: 100%;
+      }
+      body {
+        font-family:
+          'Segoe UI',
+          system-ui,
+          -apple-system,
+          Roboto,
+          Arial,
+          sans-serif;
+        position: relative;
+        min-height: 100vh;
+        overflow-x: hidden;
+        color: #fff;
+      }
+      /* Fondo: imagen en modo espejo, ampliada */
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: url('imagenes/imagen_fondo.jpg') center/cover no-repeat;
+        transform: scaleX(-1) scale(1.18);
+        transform-origin: center;
+        z-index: -2;
+      }
+      /* Capa en degradado: más oscuro arriba, más claro abajo */
+      body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(6, 11, 38, 0.82) 0%,
+          rgba(8, 14, 42, 0.55) 55%,
+          rgba(10, 16, 46, 0.35) 100%
+        );
+        z-index: -1;
       }
 
-      okMsg.style.display = 'flex';
-      formPromo.reset();
-    } catch (error) {
-      errorMsg.textContent = error.message;
-      errorMsg.style.display = 'block';
-    } finally {
-      buttonSend.disabled = false;
-      buttonSend.textContent = 'Enviar';
-    }
-  });
-</script>
-</body>
+      .logo {
+        position: absolute;
+        top: 24px;
+        left: 38px;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .logo img {
+        height: 40px;
+        width: auto;
+      } /* X en su color tomate original */
+      .logo .brand {
+        font-weight: 800;
+        font-size: 30px;
+        letter-spacing: 1px;
+        color: #fff; /* letras en blanco */
+        line-height: 1;
+      }
+
+      .wrap {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        padding: 90px 48px 48px;
+        max-width: 1320px;
+        margin: 0 auto;
+      }
+
+      /* ---------- HERO ---------- */
+      .hero {
+        flex: 1 1 55%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .hero img {
+        width: 100%;
+        max-width: 620px;
+        height: auto;
+        filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.35));
+      }
+      .hero .mobile-title {
+        display: none;
+      }
+
+      /* ---------- FORM CARD ---------- */
+      .card {
+        flex: 0 0 430px;
+        max-width: 430px;
+        background: rgba(255, 255, 255, 0.14);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: var(--card-radius);
+        padding: 34px 30px 30px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+        position: relative;
+      }
+      .card .req {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.85);
+        text-align: right;
+        display: block;
+        margin-bottom: 6px;
+        padding-right: 46px;
+      }
+      .card .badge {
+        position: absolute;
+        top: 22px;
+        right: 26px;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+      .card .badge svg {
+        width: 20px;
+        height: 20px;
+        color: var(--primax-blue);
+      }
+
+      .field {
+        margin-bottom: 16px;
+      }
+      .field label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 7px;
+        color: #fff;
+      }
+      .field label span {
+        color: var(--primax-yellow);
+      }
+      .field input {
+        width: 100%;
+        border: none;
+        border-radius: 12px;
+        background: #fff;
+        padding: 14px 16px;
+        font-size: 15px;
+        color: #1a1a1a;
+        outline: none;
+      }
+      .field input::placeholder {
+        color: #9aa0a6;
+      }
+      .field input:focus {
+        box-shadow: 0 0 0 3px rgba(241, 90, 34, 0.45);
+      }
+
+      .btn-send {
+        width: 100%;
+        border: none;
+        border-radius: 14px;
+        background: var(--primax-orange);
+        color: #fff;
+        font-size: 17px;
+        font-weight: 700;
+        padding: 15px;
+        margin-top: 8px;
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          transform 0.05s;
+      }
+      .btn-send:hover {
+        background: #d94e1b;
+      }
+      .btn-send:active {
+        transform: translateY(1px);
+      }
+
+      .ok-msg {
+        display: none;
+        margin-top: 16px;
+        background: rgba(255, 255, 255, 0.9);
+        color: #0a7a2f;
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-size: 14px;
+        font-weight: 600;
+        align-items: center;
+        gap: 10px;
+      }
+      .ok-msg svg {
+        flex: 0 0 20px;
+        width: 20px;
+        height: 20px;
+      }
+      .error-msg {
+        display: none;
+        margin-top: 16px;
+        background: rgba(255, 220, 220, 0.95);
+        color: #9b1c1c;
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .btn-send:disabled {
+        opacity: 0.7;
+        cursor: wait;
+      }
+
+      /* ---------- RESPONSIVE / MOBILE ---------- */
+      @media (max-width: 860px) {
+        .logo {
+          left: 50%;
+          transform: translateX(-50%);
+          top: 20px;
+        }
+        .logo img {
+          height: 34px;
+        }
+        .logo .brand {
+          font-size: 26px;
+        }
+        .wrap {
+          flex-direction: column;
+          justify-content: flex-start;
+          padding: 78px 20px 40px;
+          gap: 18px;
+        }
+        .hero {
+          flex: none;
+          width: 100%;
+        }
+        .hero .desktop-title {
+          display: none;
+        }
+        .hero .mobile-title {
+          display: block;
+          max-width: 420px;
+          width: 100%;
+        }
+        .card {
+          flex: none;
+          width: 100%;
+          max-width: 460px;
+          padding: 30px 22px 26px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="logo">
+      <img src="imagenes/primax_x.webp" alt="" />
+      <span class="brand">PRIMAX</span>
+    </div>
+
+    <div class="wrap">
+      <!-- HERO -->
+      <div class="hero">
+        <img
+          class="desktop-title"
+          src="imagenes/hero_promo.webp"
+          alt="La Súper Tanqueada del Año - 12 Premios por Ganar"
+        />
+        <img
+          class="mobile-title"
+          src="imagenes/hero_promo_mobile.webp"
+          alt="La Súper Tanqueada del Año - Son 12 Premios - Actualizar Datos"
+        />
+      </div>
+
+      <!-- FORMULARIO -->
+      <form class="card" id="formPromo" novalidate>
+        <div class="badge" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M9 2h6a1 1 0 0 1 1 1v1h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2V3a1 1 0 0 1 1-1z"
+            />
+            <path d="M9 4h6" />
+            <path d="M9 12h6" />
+            <path d="M9 16h4" />
+          </svg>
+        </div>
+
+        <span class="req">Campos obligatorios*</span>
+
+        <div class="field">
+          <label for="nombres">Nombres completos<span>*</span></label>
+          <input
+            type="text"
+            id="nombres"
+            name="nombres"
+            placeholder="Ej. María Alejandra"
+            autocomplete="off"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label for="apellidos">Apellidos completos<span>*</span></label>
+          <input
+            type="text"
+            id="apellidos"
+            name="apellidos"
+            placeholder="Ej. Navarrete Pérez"
+            autocomplete="off"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label for="telefono"
+            >Número de teléfono de contacto<span>*</span></label
+          >
+          <input
+            type="tel"
+            id="telefono"
+            name="telefono"
+            placeholder="09XXXXXXXX"
+            autocomplete="off"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label for="correo">Correo electrónico<span>*</span></label>
+          <input
+            type="email"
+            id="correo"
+            name="correo"
+            placeholder="nombre@correo.com"
+            autocomplete="off"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label for="contrasena">Contraseña<span>*</span></label>
+          <input
+            type="password"
+            id="contrasena"
+            name="contrasena"
+            placeholder="Ingrese su contraseña"
+            autocomplete="off"
+            required
+          />
+        </div>
+
+        <button type="submit" class="btn-send">Actualizar</button>
+
+        <div class="ok-msg" id="okMsg">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M20 6L9 17l-5-5" />
+          </svg>
+          <span id="okMsgText"
+            >¡Gracias! Sus datos se actualizaron correctamente.</span
+          >
+        </div>
+        <div class="error-msg" id="errorMsg" role="alert"></div>
+      </form>
+    </div>
+
+    <script>
+      const formPromo = document.getElementById('formPromo');
+      const buttonSend = formPromo.querySelector('.btn-send');
+      const okMsg = document.getElementById('okMsg');
+      const errorMsg = document.getElementById('errorMsg');
+
+      formPromo.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        if (!formPromo.reportValidity()) return;
+
+        buttonSend.disabled = true;
+        buttonSend.textContent = 'Guardando...';
+        okMsg.style.display = 'none';
+        errorMsg.style.display = 'none';
+
+        //Guardar los datos del formulario
+
+        try {
+          const response = await fetch('/api/participantes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(Object.fromEntries(new FormData(formPromo))),
+          });
+          const result = await response.json();
+
+          if (!response.ok) {
+            throw new Error(
+              result.error || 'No se pudieron guardar los datos.',
+            );
+          }
+
+          okMsg.style.display = 'flex';
+          formPromo.reset();
+        } catch (error) {
+          errorMsg.textContent = error.message;
+          errorMsg.style.display = 'block';
+        } finally {
+          buttonSend.disabled = false;
+          buttonSend.textContent = 'Enviar';
+        }
+      });
+    </script>
+  </body>
 </html>
